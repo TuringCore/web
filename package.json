@@ -1,0 +1,16 @@
+{
+  "name": "lorenz-attractor-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A tiny Scala-docs-inspired Lorenz attractor site deployable on Cloudflare Workers.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "check": "wrangler deploy --dry-run",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "3.114.17"
+  }
+}
+

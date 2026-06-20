@@ -1,0 +1,8 @@
+name = "lorenz-attractor-demo"
+main = "worker.js"
+compatibility_date = "2026-06-20"
+
+[assets]
+binding = "ASSETS"
+directory = "./public"
+
