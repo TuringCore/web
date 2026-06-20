@@ -8,49 +8,126 @@
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   const config = {
-	sigma: 10,
-	rho: 28,
-	beta: 8 / 3,
-	dt: 0.0062,
-	trailLength: 2200,
-	substeps: 7,
-	rotationSpeed: 0.00018,
-	background: '#020617',
-	lineWidth: 1.85
+    sigma: 10,
+    rho: 28,
+    beta: 8 / 3,
+    dt: 0.0062,
+    trailLength: 1700,
+    substeps: 6,
+    rotationSpeed: 0.00017,
+    lineWidth: 1.5,
+    depthBase: 110,
+    bucketCount: 7
   };
 
-  let point = { x: 0.1, y: 0, z: 0 };
-  let trail = [];
+  let pointX = 0.1;
+  let pointY = 0;
+  let pointZ = 0;
+
+  const trailX = new Float32Array(config.trailLength);
+  const trailY = new Float32Array(config.trailLength);
+  const trailZ = new Float32Array(config.trailLength);
+  let trailHead = 0;
+  let trailCount = 0;
+
+  const projectedX = new Float32Array(config.trailLength);
+  const projectedY = new Float32Array(config.trailLength);
+  const projectedA = new Float32Array(config.trailLength);
+
+  const backgroundCanvas = document.createElement('canvas');
+  const backgroundContext = backgroundCanvas.getContext('2d', { alpha: false });
+
   let animationFrame = 0;
   let lastTimestamp = 0;
   let viewport = { width: 1, height: 1, pixelRatio: 1 };
 
   function resetSystem() {
-    point = { x: 0.1, y: 0, z: 0 };
-    trail = [];
+    pointX = 0.1;
+    pointY = 0;
+    pointZ = 0;
+    trailHead = 0;
+    trailCount = 0;
+  }
+
+  function pushTrailPoint(x, y, z) {
+    trailX[trailHead] = x;
+    trailY[trailHead] = y;
+    trailZ[trailHead] = z;
+    trailHead = (trailHead + 1) % config.trailLength;
+    if (trailCount < config.trailLength) {
+      trailCount += 1;
+    }
   }
 
   function integrateLorenz() {
-    const { sigma, rho, beta, dt } = config;
-    const dx = sigma * (point.y - point.x);
-    const dy = point.x * (rho - point.z) - point.y;
-    const dz = point.x * point.y - beta * point.z;
+    const dx = config.sigma * (pointY - pointX);
+    const dy = pointX * (config.rho - pointZ) - pointY;
+    const dz = pointX * pointY - config.beta * pointZ;
 
-    point = {
-      x: point.x + dx * dt,
-      y: point.y + dy * dt,
-      z: point.z + dz * dt
-    };
+    pointX += dx * config.dt;
+    pointY += dy * config.dt;
+    pointZ += dz * config.dt;
 
-    trail.push({ ...point });
-    if (trail.length > config.trailLength) {
-      trail.shift();
-    }
+    pushTrailPoint(pointX, pointY, pointZ);
+  }
+
+  function renderBackground() {
+    if (!backgroundContext) return;
+
+    const width = viewport.width;
+    const height = viewport.height;
+
+    const gradient = backgroundContext.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, '#020617');
+    gradient.addColorStop(0.45, '#081225');
+    gradient.addColorStop(1, '#020617');
+    backgroundContext.fillStyle = gradient;
+    backgroundContext.fillRect(0, 0, width, height);
+
+    const cyanGlow = backgroundContext.createRadialGradient(
+      width * 0.28,
+      height * 0.26,
+      0,
+      width * 0.28,
+      height * 0.26,
+      width * 0.48
+    );
+    cyanGlow.addColorStop(0, 'rgba(34, 211, 238, 0.12)');
+    cyanGlow.addColorStop(1, 'rgba(2, 6, 23, 0)');
+    backgroundContext.fillStyle = cyanGlow;
+    backgroundContext.fillRect(0, 0, width, height);
+
+    const magentaGlow = backgroundContext.createRadialGradient(
+      width * 0.76,
+      height * 0.28,
+      0,
+      width * 0.76,
+      height * 0.28,
+      width * 0.42
+    );
+    magentaGlow.addColorStop(0, 'rgba(232, 121, 249, 0.11)');
+    magentaGlow.addColorStop(1, 'rgba(2, 6, 23, 0)');
+    backgroundContext.fillStyle = magentaGlow;
+    backgroundContext.fillRect(0, 0, width, height);
+
+    const vignette = backgroundContext.createRadialGradient(
+      width * 0.5,
+      height * 0.5,
+      Math.min(width, height) * 0.12,
+      width * 0.5,
+      height * 0.5,
+      Math.max(width, height) * 0.75
+    );
+    vignette.addColorStop(0, 'rgba(2, 6, 23, 0)');
+    vignette.addColorStop(1, 'rgba(2, 6, 23, 0.7)');
+    backgroundContext.fillStyle = vignette;
+    backgroundContext.fillRect(0, 0, width, height);
   }
 
   function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
-    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.75);
+
     viewport = {
       width: Math.max(1, Math.floor(rect.width || window.innerWidth)),
       height: Math.max(1, Math.floor(rect.height || window.innerHeight)),
@@ -60,182 +137,159 @@
     canvas.width = Math.floor(viewport.width * pixelRatio);
     canvas.height = Math.floor(viewport.height * pixelRatio);
     context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+    backgroundCanvas.width = viewport.width;
+    backgroundCanvas.height = viewport.height;
+    renderBackground();
   }
 
-  function rotate(point3d, angleY, angleX) {
+  function drawBackground() {
+    context.drawImage(backgroundCanvas, 0, 0);
+  }
+
+  function projectTrailPoints(time) {
+    const angleY = Math.PI * 0.18 + time * config.rotationSpeed;
+    const angleX = -0.38;
     const cosY = Math.cos(angleY);
     const sinY = Math.sin(angleY);
     const cosX = Math.cos(angleX);
     const sinX = Math.sin(angleX);
 
-    const x1 = point3d.x * cosY - point3d.z * sinY;
-    const z1 = point3d.x * sinY + point3d.z * cosY;
-    const y1 = point3d.y;
-
-    return {
-      x: x1,
-      y: y1 * cosX - z1 * sinX,
-      z: y1 * sinX + z1 * cosX
-    };
-  }
-
-  function projectPoint(point3d, time) {
     const scale = Math.min(viewport.width, viewport.height) * 0.023;
-    const rotated = rotate(
-      { x: point3d.x, y: point3d.y - 2, z: point3d.z - 24 },
-      Math.PI * 0.18 + time * config.rotationSpeed,
-      -0.38
-    );
+    const centerX = viewport.width * 0.5;
+    const centerY = viewport.height * 0.53;
 
-    const depth = 110 / (110 + rotated.z);
-    return {
-      x: viewport.width * 0.5 + rotated.x * scale * depth,
-      y: viewport.height * 0.53 - rotated.y * scale * depth,
-      alpha: Math.max(0.08, Math.min(1, depth)),
-      depth
-    };
+    const start = (trailHead - trailCount + config.trailLength) % config.trailLength;
+
+    for (let i = 0; i < trailCount; i += 1) {
+      const index = (start + i) % config.trailLength;
+      const x = trailX[index];
+      const y = trailY[index] - 2;
+      const z = trailZ[index] - 24;
+
+      const x1 = x * cosY - z * sinY;
+      const z1 = x * sinY + z * cosY;
+      const y1 = y;
+
+      const ry = y1 * cosX - z1 * sinX;
+      const rz = y1 * sinX + z1 * cosX;
+      const depth = config.depthBase / (config.depthBase + rz);
+
+      projectedX[i] = centerX + x1 * scale * depth;
+      projectedY[i] = centerY - ry * scale * depth;
+      projectedA[i] = depth < 0.08 ? 0.08 : depth > 1 ? 1 : depth;
+    }
   }
 
-  function drawBackground() {
-    const gradient = context.createLinearGradient(0, 0, 0, viewport.height);
-    gradient.addColorStop(0, '#020617');
-    gradient.addColorStop(0.45, '#081225');
-    gradient.addColorStop(1, config.background);
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, viewport.width, viewport.height);
+  function drawTrail() {
+    if (trailCount < 2) return;
 
-    const cyanGlow = context.createRadialGradient(
-      viewport.width * 0.28,
-      viewport.height * 0.26,
-      0,
-      viewport.width * 0.28,
-      viewport.height * 0.26,
-      viewport.width * 0.48
+    context.lineWidth = Math.max(
+      1.0,
+      Math.min(2.1, Math.min(viewport.width, viewport.height) * 0.0016)
     );
-    cyanGlow.addColorStop(0, 'rgba(34, 211, 238, 0.12)');
-    cyanGlow.addColorStop(1, 'rgba(2, 6, 23, 0)');
-    context.fillStyle = cyanGlow;
-    context.fillRect(0, 0, viewport.width, viewport.height);
+    context.lineCap = 'round';
+    context.lineJoin = 'round';
+    context.shadowBlur = 0;
 
-    const magentaGlow = context.createRadialGradient(
-      viewport.width * 0.76,
-      viewport.height * 0.28,
-      0,
-      viewport.width * 0.76,
-      viewport.height * 0.28,
-      viewport.width * 0.42
-    );
-    magentaGlow.addColorStop(0, 'rgba(232, 121, 249, 0.11)');
-    magentaGlow.addColorStop(1, 'rgba(2, 6, 23, 0)');
-    context.fillStyle = magentaGlow;
-    context.fillRect(0, 0, viewport.width, viewport.height);
+    const segmentCount = trailCount - 1;
+    const bucketCount = config.bucketCount;
 
-    const vignette = context.createRadialGradient(
-      viewport.width * 0.5,
-      viewport.height * 0.5,
-      Math.min(viewport.width, viewport.height) * 0.12,
-      viewport.width * 0.5,
-      viewport.height * 0.5,
-      Math.max(viewport.width, viewport.height) * 0.75
-    );
-    vignette.addColorStop(0, 'rgba(2, 6, 23, 0)');
-    vignette.addColorStop(1, 'rgba(2, 6, 23, 0.7)');
-    context.fillStyle = vignette;
-    context.fillRect(0, 0, viewport.width, viewport.height);
-  }
+    for (let bucket = 0; bucket < bucketCount; bucket += 1) {
+      const startSegment = Math.floor((segmentCount * bucket) / bucketCount);
+      const endSegment = Math.floor((segmentCount * (bucket + 1)) / bucketCount) - 1;
+      if (endSegment < startSegment) continue;
 
-  function drawTrail(time) {
-	if (trail.length < 2) return;
+      const mix = (bucket + 0.5) / bucketCount;
+      const hue = 188 + mix * 135;
+      const lightness = 72 - mix * 24;
+      const alpha = 0.18 + mix * 0.62;
 
-	context.lineWidth = Math.max(1.05, Math.min(2.4, Math.min(viewport.width, viewport.height) * 0.0019));
-	context.lineCap = 'round';
-	context.lineJoin = 'round';
-	context.shadowBlur = 12;
+      context.strokeStyle = `hsla(${hue}, 95%, ${lightness}%, ${alpha})`;
+      context.beginPath();
+      context.moveTo(projectedX[startSegment], projectedY[startSegment]);
 
-	for (let i = 1; i < trail.length; i += 1) {
-	  const previous = projectPoint(trail[i - 1], time);
-	  const current = projectPoint(trail[i], time);
-	  const mix = i / trail.length;
-	  const hue = 188 + mix * 135;
-	  const lightness = 72 - mix * 24;
-	  const alpha = Math.min(previous.alpha, current.alpha) * (0.08 + mix * 0.92);
+      for (let segment = startSegment; segment <= endSegment; segment += 1) {
+        context.lineTo(projectedX[segment + 1], projectedY[segment + 1]);
+      }
 
-	  context.shadowColor = `hsla(${hue}, 100%, 70%, ${alpha * 0.55})`;
-	  context.strokeStyle = `hsla(${hue}, 96%, ${lightness}%, ${alpha})`;
-	  context.beginPath();
-	  context.moveTo(previous.x, previous.y);
-	  context.lineTo(current.x, current.y);
-	  context.stroke();
-	}
+      context.stroke();
+    }
 
-	context.shadowBlur = 22;
-	const head = projectPoint(trail[trail.length - 1], time);
-	context.beginPath();
-	context.fillStyle = 'rgba(255, 255, 255, 0.98)';
-	context.shadowColor = 'rgba(255, 255, 255, 0.8)';
-	context.arc(head.x, head.y, 2.8, 0, Math.PI * 2);
-	context.fill();
-	context.shadowBlur = 0;
+    const headIndex = trailCount - 1;
+    context.shadowBlur = 10;
+    context.shadowColor = 'rgba(255, 255, 255, 0.6)';
+    context.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    context.beginPath();
+    context.arc(projectedX[headIndex], projectedY[headIndex], 2.4, 0, Math.PI * 2);
+    context.fill();
+    context.shadowBlur = 0;
   }
 
   function render(timestamp) {
-	 drawBackground();
+    drawBackground();
 
-	 const delta = Math.min(32, timestamp - lastTimestamp || 16.67);
-	 const normalized = delta / 16.67;
-	 const steps = Math.max(1, Math.round(config.substeps * normalized));
+    const delta = Math.min(32, timestamp - lastTimestamp || 16.67);
+    const normalized = delta / 16.67;
+    const steps = Math.min(10, Math.max(1, Math.round(config.substeps * normalized)));
 
-	 for (let i = 0; i < steps; i += 1) {
-	   integrateLorenz();
-	 }
+    for (let i = 0; i < steps; i += 1) {
+      integrateLorenz();
+    }
 
-	 drawTrail(timestamp);
-	 lastTimestamp = timestamp;
+    projectTrailPoints(timestamp);
+    drawTrail();
 
-	 if (!prefersReducedMotion.matches) {
-	   animationFrame = window.requestAnimationFrame(render);
-	 }
+    lastTimestamp = timestamp;
+    if (!prefersReducedMotion.matches) {
+      animationFrame = window.requestAnimationFrame(render);
+    }
   }
 
   function renderStillFrame() {
-	 drawBackground();
-	 if (trail.length === 0) {
-	   for (let i = 0; i < config.trailLength; i += 1) {
-	     integrateLorenz();
-	   }
-	 }
-	 drawTrail(0);
+    if (trailCount < config.trailLength * 0.7) {
+      const target = Math.floor(config.trailLength * 0.7) - trailCount;
+      for (let i = 0; i < target; i += 1) {
+        integrateLorenz();
+      }
+    }
+
+    drawBackground();
+    projectTrailPoints(0);
+    drawTrail();
   }
 
   function start() {
-	 window.cancelAnimationFrame(animationFrame);
-	 lastTimestamp = 0;
+    window.cancelAnimationFrame(animationFrame);
+    lastTimestamp = 0;
 
-	 if (prefersReducedMotion.matches) {
-	   renderStillFrame();
-	   return;
-	 }
+    if (prefersReducedMotion.matches) {
+      renderStillFrame();
+      return;
+    }
 
-	 animationFrame = window.requestAnimationFrame(render);
+    animationFrame = window.requestAnimationFrame(render);
   }
 
   function handleResize() {
-	 resizeCanvas();
-	 if (prefersReducedMotion.matches) {
-	   renderStillFrame();
-	 }
+    resizeCanvas();
+    if (prefersReducedMotion.matches) {
+      renderStillFrame();
+    }
   }
 
   resizeCanvas();
   resetSystem();
-  for (let i = 0; i < 420; i += 1) integrateLorenz();
+  for (let i = 0; i < 360; i += 1) {
+    integrateLorenz();
+  }
   start();
 
   window.addEventListener('resize', handleResize, { passive: true });
   if (typeof prefersReducedMotion.addEventListener === 'function') {
-	prefersReducedMotion.addEventListener('change', start);
+    prefersReducedMotion.addEventListener('change', start);
   } else if (typeof prefersReducedMotion.addListener === 'function') {
-	prefersReducedMotion.addListener(start);
+    prefersReducedMotion.addListener(start);
   }
 })();
 
