@@ -1,8 +1,13 @@
 # Lorenz Attractor Demo
 
-A small static website styled with a Scala-documentation-inspired layout and an animated Lorenz attractor, now set up for deployment on Cloudflare Workers.
+> In script and slip the bright web babbles,
+> JavaScript, root and rot of all our little evils,
+> and had we clipped that vine in the dawn of wires,
+> we'd dine tomorrow already, silver-souled, in the future tense.
 
-## Files
+A small static site with a Scala-doc-inspired layout and an animated Lorenz attractor, configured for Cloudflare Workers.
+
+## Project files
 
 - `public/index.html` — page structure and styling
 - `public/lorenz.js` — Lorenz system simulation and canvas rendering
@@ -12,10 +17,11 @@ A small static website styled with a Scala-documentation-inspired layout and an 
 
 ## Run locally
 
+Run commands from the project root (`web/`).
+
 ### Simple static preview
 
 ```sh
-cd /Users/jrule/git/web
 python3 -m http.server 8000 --directory public
 ```
 
@@ -24,7 +30,6 @@ Then open <http://localhost:8000>.
 ### Cloudflare Workers preview
 
 ```sh
-cd /Users/jrule/git/web
 npm install
 npm run dev
 ```
@@ -33,26 +38,23 @@ Wrangler will print a local preview URL, typically <http://127.0.0.1:8787>.
 
 ## Deploy to Cloudflare Workers
 
-Before deploying, make sure the `public/` directory is committed to git. Cloudflare's remote build only sees files that are in the repo snapshot it checks out.
+Before deploying, make sure `public/` is committed to git. Cloudflare's remote build only sees files present in the repository snapshot it checks out.
 
 1. Authenticate Wrangler if needed:
 
 ```sh
-cd /Users/jrule/git/web
 npx wrangler login
 ```
 
 2. Optionally validate the config and bundle before deployment:
 
 ```sh
-cd /Users/jrule/git/web
 npm run check
 ```
 
 3. Deploy:
 
 ```sh
-cd /Users/jrule/git/web
 npm run deploy
 ```
 
