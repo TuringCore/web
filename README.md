@@ -1,10 +1,5 @@
 # Lorenz Attractor Demo
 
-> In script and slip the bright web babbles,
-> JavaScript, root and rot of all our little evils,
-> and had we clipped that vine in the dawn of wires,
-> we'd dine tomorrow already, silver-souled, in the future tense.
-
 A small static site with a Scala-doc-inspired layout and an animated Lorenz attractor, configured for Cloudflare Workers.
 
 ## Project files
