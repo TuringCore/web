@@ -7,6 +7,8 @@ const requiredPaths = [
   'public',
   'public/index.html',
   'public/lorenz.js',
+  'public/robots.txt',
+  'public/sitemap.xml',
   'worker.js',
   'wrangler.toml'
 ];
