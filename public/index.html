@@ -64,6 +64,32 @@
         height: 100dvh;
       }
 
+      .attribution {
+        position: fixed;
+        right: max(10px, env(safe-area-inset-right));
+        bottom: max(8px, env(safe-area-inset-bottom));
+        z-index: 3;
+        padding: 6px 10px;
+        border-radius: 10px;
+        background: rgba(2, 6, 23, 0.5);
+        color: rgba(226, 232, 240, 0.9);
+        font-family: "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+        font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+        line-height: 1;
+        letter-spacing: 0.015em;
+        backdrop-filter: blur(4px);
+      }
+
+      .attribution a {
+        color: #bfdbfe;
+        text-decoration: none;
+      }
+
+      .attribution a:hover,
+      .attribution a:focus-visible {
+        text-decoration: underline;
+      }
+
       @supports not (height: 100dvh) {
         #attractor {
           height: 100vh;
@@ -75,6 +101,10 @@
     <main aria-label="Fullscreen Lorenz attractor experience">
       <canvas id="attractor" aria-label="Animated Lorenz attractor"></canvas>
     </main>
+    <div class="attribution">
+      Made with ❤️ by
+      <a href="https://github.com/TuringCore" target="_blank" rel="noopener noreferrer">TuringCore</a>
+    </div>
 
     <script src="./lorenz.js"></script>
   </body>
