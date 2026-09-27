@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Turing | How It Works</title>
+    <title>Turing | Hardware Synthesis</title>
     <meta
       name="description"
-      content="Turing delivers cumulative, machine-checked formal verification using pure-functional methods in Haskell, Scala, and Coq."
+      content="A New Yorker-style essay on the history of hardware synthesis and formal verification, from logic design to machine-checked assurance."
     />
     <meta
       name="keywords"
-      content="formal verification, smart contracts, haskell, scala, coq, machine-learning, artificial-intelligence, probabilistic-programming, bayesian-inference"
+      content="formal verification, hardware synthesis, systemverilog, coq, hdl, design automation, logic synthesis, digital design, safety"
     />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#f3eee6" />
@@ -19,27 +19,27 @@
     <link rel="sitemap" type="application/xml" title="Sitemap" href="https://turingops.ai/sitemap.xml" />
     <meta property="og:type" content="article" />
     <meta property="og:url" content="https://turingops.ai/turing.html" />
-    <meta property="og:title" content="Turing | How It Works" />
+    <meta property="og:title" content="Turing | Hardware Synthesis" />
     <meta
       property="og:description"
-      content="A concise overview of cumulative proof workflows built for critical software."
+      content="A reflective account of hardware synthesis, formal verification, and the discipline required to build trustworthy silicon."
     />
     <meta property="og:site_name" content="Turing" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:url" content="https://turingops.ai/turing.html" />
-    <meta name="twitter:title" content="Turing | How It Works" />
+    <meta name="twitter:title" content="Turing | Hardware Synthesis" />
     <meta
       name="twitter:description"
-      content="Turing uses pure-functional proof systems to build reusable correctness evidence over time."
+      content="From logic synthesis to theorem-proving, hardware trust is built in layers and checked early."
     />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        "name": "Turing | How It Works",
+        "name": "Turing | Hardware Synthesis",
         "url": "https://turingops.ai/turing.html",
-        "description": "How Turing delivers cumulative, machine-checked formal verification outcomes for software teams.",
-        "about": ["formal verification", "smart contracts", "haskell", "scala", "coq"],
+        "description": "A reflective essay on hardware synthesis, formal verification, and the discipline required to trust digital systems.",
+        "about": ["formal verification", "hardware synthesis", "systemverilog", "digital design", "coq"],
         "isPartOf": {
           "@type": "WebSite",
           "@id": "https://turingops.ai/"
@@ -317,57 +317,93 @@
       </header>
 
       <main>
-        <p class="kicker">Platform</p>
-        <h1>How Turing works</h1>
+        <p class="kicker">Essay</p>
+        <h1>Hardware synthesis</h1>
         <p class="lead">
-          Turing is a prover agent for critical software. It reads your contracts, drafts a formal
-          specification with you, and searches for machine-checked proofs that the code satisfies each
-          approved property across every input and every execution.
+          In the beginning, hardware design was not a science of proof but a craft of correlation. A designer drew
+          a logic diagram, built a gate netlist, and hoped the device would behave as intended when the signals began
+          to move at speed. The rituals were elaborate, the tools imperfect, and the language of trust was mostly
+          practical: the piece worked in the lab, the timing looked stable, the board did not smoke under load.
         </p>
 
-        <p class="kicker">Differentiation</p>
-        <h2>Why the approach is different</h2>
+        <p class="kicker">The long arc</p>
+        <h2>What synthesis changed</h2>
         <p class="lead">
-          Turing uses a pure-functional stack with Haskell, Scala, and Coq to support cumulative proofs.
-          Instead of treating verification as isolated theorem work, it composes reusable proof assets over
-          time. The result is a verification base that survives refactors and re-checks cleanly as the code
-          evolves.
+          The great invention of synthesis was not simply automation. It was the idea that logic could be described at a higher level and then
+          mechanically translated into a lower-level implementation. Boolean equations became a design language, then a netlist, then a physical
+          plan. That change mattered because it allowed complexity to scale without requiring every designer to keep every gate in mind at once.
         </p>
 
-        <p class="kicker">Workflow</p>
-        <section class="steps" aria-label="Workflow">
+        <p class="kicker">A discipline of obligation</p>
+        <h2>Why the old methods always felt slightly precarious</h2>
+        <p class="lead">
+          Before formal tools entered the picture, hardware design often depended on a mixture of simulation, inspection, and instinct. The trouble is
+          that simulation is a sampling method, not a guarantee. It tells you that certain scenarios behaved as expected, not that the architecture is
+          sound for all relevant inputs, timings, and edge conditions. The unspoken anxiety beneath every generation of chip design was this: what if the
+          missing case is the one that matters?
+        </p>
+
+        <p class="kicker">The middle of the story</p>
+        <h2>Formal verification enters the room</h2>
+        <p class="lead">
+          Formal methods changed the shape of the conversation. Instead of asking whether a design appears correct under the test vectors one has run,
+          one asks whether it satisfies a model of correctness under a specification. The result is not an opinion but a proof obligation. That shift in
+          posture matters. It moves design from "looks right" to "is constrained in the right way," and from "we believe the logic is safe" to "we can
+          state the conditions under which it is safe."
+        </p>
+
+        <p class="kicker">The system under discussion</p>
+        <h2>Some of the goals of the DPU</h2>
+        <p class="lead">
+          The work in <code>/dpu</code> is a good example of this philosophy in miniature. The focus is narrow but meaningful: a tile-level digital
+          processing unit for diffusion-style multiply-accumulate workloads. The design is intentionally small enough to reason about directly, yet rich enough
+          to carry the architecture's central concerns: signed arithmetic, bounded accumulation, valid/ready handshakes, saturation, and output stability
+          under backpressure. These are not decorative details. They are the kinds of obligations that become dangerous once they are scaled into arrays or
+          integrated into processors that never stop moving.
+        </p>
+
+        <section class="steps" aria-label="Hardware design goals">
           <article class="card">
-            <h3>1. Import and model</h3>
-            <p>Bring in your contracts and implementation artifacts. Turing constructs a precise model scope.</p>
+            <h3>1. A tractable core</h3>
+            <p>The DPU tile is a small, verification-friendly primitive rather than a speculative full accelerator. This makes the specification and proofs easier to hold in view.</p>
           </article>
           <article class="card">
-            <h3>2. Review the specification</h3>
-            <p>Approve properties in plain language, pseudocode, and formal form before proof search begins.</p>
+            <h3>2. A clear protocol</h3>
+            <p>The valid/ready interfaces establish the operating discipline explicitly: configuration, data intake, and final output are all part of the machine's contract.</p>
           </article>
           <article class="card">
-            <h3>3. Prove continuously</h3>
-            <p>Proof search runs under your budget cap and emits replayable artifacts for each solved property.</p>
+            <h3>3. Safety under edge cases</h3>
+            <p>Zero-length jobs, saturation, and held-output behavior are not side stories. They are the places where many arithmetic bugs hide in plain sight.</p>
           </article>
           <article class="card">
-            <h3>4. Re-check on every push</h3>
-            <p>CI catches behavioral drift early so evidence stays aligned with the source of truth.</p>
+            <h3>4. A roadmap to scale</h3>
+            <p>The tile is a candidate building block for larger arrays, but the truth of the design is established before the architecture broadens.</p>
           </article>
         </section>
 
+        <p class="kicker">The point of the exercise</p>
+        <h2>Not just to build faster hardware, but to build trusted hardware</h2>
+        <p class="lead">
+          Formal verification does not remove the need for engineering judgment. It gives judgment a sharper object. One can still choose a saturation
+          policy, a data format, or a throughput target. But once those choices are encoded in a proof-friendly specification, they stop being assumptions
+          floating in the room. They become parts of the system's contract. This is the real value of the modern hardware synthesis stack: not merely that it
+          turns invention into automation, but that it turns design intent into something reviewable, checkable, and reusable.
+        </p>
+
         <p class="kicker">Outcomes</p>
-        <h2>Three outcomes per property</h2>
-        <section class="outcomes" aria-label="Property outcomes">
+        <h2>Three kinds of confidence</h2>
+        <section class="outcomes" aria-label="Verification outcomes">
           <article class="card">
-            <h3>Proven</h3>
-            <p>A replayable, machine-checked theorem that any reviewer can independently verify.</p>
+            <h3>Simulation</h3>
+            <p>Behavior is exercised under many concrete trajectories, including randomized and edge-heavy cases.</p>
           </article>
           <article class="card">
-            <h3>Refuted</h3>
-            <p>A concrete executable counterexample that reproduces the failing path so the issue is explicit.</p>
+            <h3>Formal assertions</h3>
+            <p>Key invariants are stated as obligations that the logic must satisfy in all relevant states.</p>
           </article>
           <article class="card">
-            <h3>Not yet proven</h3>
-            <p>A transparent report that a property was not solved under the current spend cap and constraints.</p>
+            <h3>Reusable proof base</h3>
+            <p>The evidence is retained as a basis for later design revisions rather than discarded after a single pass.</p>
           </article>
         </section>
 
@@ -379,7 +415,7 @@
 
       <footer>
         <p class="citation">
-          Explore: <a href="/">Home</a> · <a href="/turing.html">How Turing Works</a> · <a href="/world_model.html">Dependently Typed World Models</a> · <a href="https://turingops.ai/world_model_paper.pdf">White Paper</a> · <a href="https://github.com/TuringOp" target="_blank" rel="noopener noreferrer">GitHub</a>
+          Explore: <a href="/">Home</a> · <a href="/turing.html">Hardware Synthesis</a> · <a href="/world_model.html">Dependently Typed World Models</a> · <a href="https://turingops.ai/world_model_paper.pdf">White Paper</a> · <a href="https://github.com/TuringOp" target="_blank" rel="noopener noreferrer">GitHub</a>
         </p>
       </footer>
     </div>
