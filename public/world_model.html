@@ -268,67 +268,6 @@
         font-style: italic;
       }
 
-      .pun-aside {
-        width: min(100%, var(--content-max));
-        max-width: 100%;
-        margin-top: var(--space-3);
-        padding: 1rem;
-        background: var(--panel);
-        border-top: 2px solid var(--line);
-        border-bottom: 1px solid var(--line-soft);
-        color: var(--panel-text);
-        display: grid;
-        gap: 0.8rem;
-      }
-
-      .pun-aside p {
-        max-width: none;
-      }
-
-      .pun-kicker {
-        margin: 0;
-        font-size: 0.72rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        font-weight: 600;
-        color: var(--panel-muted);
-      }
-
-      .pun-controls {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      .pun-button {
-        display: inline-block;
-        padding: 0.52rem 0.92rem;
-        border: 1px solid var(--line);
-        background: var(--accent);
-        color: var(--accent-text);
-        font: inherit;
-        font-size: 0.92rem;
-        font-weight: 600;
-        letter-spacing: 0.01em;
-        cursor: pointer;
-      }
-
-      .pun-button:hover,
-      .pun-button:focus-visible {
-        opacity: 0.9;
-      }
-
-      .pun-output {
-        min-height: 3.4em;
-        padding: 0.85rem 0.9rem;
-        background: rgba(34, 56, 76, 0.06);
-        border: 1px solid var(--line-soft);
-        color: var(--panel-text);
-        font-size: 0.97rem;
-        line-height: 1.55;
-      }
-
       .code-block {
         width: min(100%, var(--content-max));
         max-width: 100%;
@@ -505,25 +444,11 @@
           A world model is, at heart, a machine for rehearsing reality. It gathers the rush of perception,
           compresses it into a private account of what matters, and then asks a question that feels at once
           mechanical and strangely human: if I do this next, what sort of world will greet me? One can see why
-          the field has fallen in love with the phrase. It promises not just calculation but poise. The trouble
-          is that machine imagination, left to its own devices, so easily becomes self-impressed—certain of its
-          futures, incurious about its limits. Dependent type theory offers a sterner bargain: an imagination
-          made to travel with its papers.
+          the field has fallen in love with the phrase. It promises not just calculation but poise. The opportunity
+          is that machine imagination becomes even more useful when it carries explicit constraints, clear assumptions,
+          and a traceable account of what it is allowed to infer. Dependent type theory offers a practical companion:
+          an imagination that travels with its receipts, not just its intuition.
         </p>
-
-        <aside class="pun-aside" aria-labelledby="pun-generator-title">
-          <p class="pun-kicker">Optional aside</p>
-          <p id="pun-generator-title">
-            If the tectonic pressure of the page grows a little high, press the button for a small geography or
-            geology pun.
-          </p>
-          <div class="pun-controls">
-            <button class="pun-button" type="button" id="generate-pun">Generate Pun</button>
-          </div>
-          <p class="pun-output" id="pun-output" aria-live="polite">
-            No fault if you skip this section.
-          </p>
-        </aside>
 
         <div class="article">
           <section class="section" aria-labelledby="broad-strokes">
@@ -913,52 +838,6 @@ Definition usable_for_critical_plan (o : Observation) : bool :=
         </p>
       </footer>
     </div>
-    <script>
-      (() => {
-        const puns = [
-          "I tried to make a map joke, but the whole thing went off course.",
-          "Sedimentary rocks are easy company: they never take anything for granite.",
-          "The geologist broke up with the volcano because the relationship kept erupting.",
-          "I asked the mountain for advice, and it told me to take the high ground.",
-          "My atlas is so dramatic it turns every road trip into a plot twist.",
-          "The tectonic plates had an argument, but eventually they found common ground.",
-          "That canyon joke had depth, but it took a while to land.",
-          "The mineral collection started a band, but only the boulder had stage presence.",
-          "I wanted to tell a glacier joke, but it needed better timing to drift by.",
-          "The cartographer stayed calm under pressure; she always knew where things stood.",
-          "A shameless cliff is just an escarpment with no sense of boundaries.",
-          "The magma comedian is raw talent, though the material still needs to cool.",
-          "Our hiking plan looked solid on paper until the hill added its own topography.",
-          "The pebble dreamed big, but everyone said it was going through a rocky phase.",
-          "I asked the desert for directions and it told me to dune my own research.",
-          "The valley kept the best gossip because everything eventually rolled downhill.",
-          "The earthquake memoir was gripping, if a little unsettling in structure.",
-          "That geode is proof that even very plain exteriors can be hiding a cavity of surprises."
-        ];
-
-        const button = document.getElementById("generate-pun");
-        const output = document.getElementById("pun-output");
-
-        if (!button || !output || puns.length === 0) {
-          return;
-        }
-
-        let lastIndex = -1;
-
-        button.addEventListener("click", () => {
-          let nextIndex = Math.floor(Math.random() * puns.length);
-
-          if (puns.length > 1) {
-            while (nextIndex === lastIndex) {
-              nextIndex = Math.floor(Math.random() * puns.length);
-            }
-          }
-
-          lastIndex = nextIndex;
-          output.textContent = puns[nextIndex];
-        });
-      })();
-    </script>
   </body>
 </html>
 
