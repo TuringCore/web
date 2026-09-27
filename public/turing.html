@@ -320,153 +320,160 @@
         <p class="kicker">Essay</p>
         <h1>Hardware synthesis</h1>
         <p class="lead">
-          In the beginning, hardware design was not a science of proof but a craft of correlation. A designer drew
-          a logic diagram, built a gate netlist, and hoped the device would behave as intended when the signals began
-          to move at speed. The rituals were elaborate, the tools imperfect, and the language of trust was mostly
-          practical: the piece worked in the lab, the timing looked stable, the board did not smoke under load.
+          The Apple Lisa arrived in the early 1980s with a certain old-fashioned glamour, as if a company could
+          will a future into being simply by giving it a polished shell and a grand name. It was a machine meant to
+          suggest the office of the future: a graphical interface, a mouse, an elegant workstation for a new era. But
+          the market did not arrive on cue. The Lisa was too expensive, too early, and too entangled in the peculiar
+          economics of a rapidly changing computer business. In the end, it was not merely a product that disappointed;
+          it was a reminder that a brilliant idea, in hardware, can still burn through years of work and a large share
+          of investment before the world decides whether it wants it.
+        </p>
+
+        <p class="kicker">The parable</p>
+        <h2>The danger of building a machine before the market knows what it needs</h2>
+        <p class="lead">
+          In the annals of industrial ambition, the Lisa is a useful caution. It suggests the central truth of hardware:
+          the cleanest concept can still fail if the surrounding system is not ready, if the costs are too far out ahead
+          of the market, or if the architecture depends on assumptions that never become common behavior. The company
+          spent a great deal of money on a product whose timing was wrong and whose economics were too fragile to carry
+          it into the mainstream. That is the first lesson of the story. The second is more modern: even a well-designed
+          product can still be defeated by the simple fact that products must fit the world as it is, not as the company
+          hopes it will become.
         </p>
 
         <p class="kicker">The long arc</p>
         <h2>What synthesis changed</h2>
         <p class="lead">
-          The great invention of synthesis was not simply automation. It was the idea that logic could be described at a higher level and then
-          mechanically translated into a lower-level implementation. Boolean equations became a design language, then a netlist, then a physical
-          plan. That change mattered because it allowed complexity to scale without requiring every designer to keep every gate in mind at once.
+          Hardware synthesis began as an answer to a different problem. The old way of building machines relied on hand
+          design, careful inspection, and a kind of artisanal certainty: a circuit looked right, the timing looked
+          acceptable, the board did not smoke under load. That was not a bad system for a small design. It was simply
+          not a system that could accommodate complexity without becoming a theater of improbable hopes. Synthesis gave
+          engineering a much stronger posture. It taught the field to describe a circuit at a higher level, let the tools
+          translate the intent downward, and keep the logic disciplined as it grew in size and ambition.
         </p>
 
         <p class="kicker">A discipline of obligation</p>
         <h2>Why the old methods always felt slightly precarious</h2>
         <p class="lead">
-          Before formal tools entered the picture, hardware design often depended on a mixture of simulation, inspection, and instinct. The trouble is
-          that simulation is a sampling method, not a guarantee. It tells you that certain scenarios behaved as expected, not that the architecture is
-          sound for all relevant inputs, timings, and edge conditions. The unspoken anxiety beneath every generation of chip design was this: what if the
-          missing case is the one that matters?
+          For all the elegance of the schematic, hardware design has always been haunted by the same suspicion: the thing
+          works in the cases we tested, but what about the cases we did not think to test? Simulation is a sampling method,
+          not a guarantee. The designer may be certain that the arithmetic is correct, only to discover that the signing,
+          reset, or handoff protocol is wrong in a state that no practical test happened to reach. The unspoken anxiety
+          beneath every generation of silicon work is this: what if the missing case is the one that matters?
         </p>
 
-        <p class="kicker">The middle of the story</p>
+        <p class="kicker">The guardrail</p>
         <h2>Formal verification enters the room</h2>
         <p class="lead">
-          Formal methods changed the shape of the conversation. Instead of asking whether a design appears correct under the test vectors one has run,
-          one asks whether it satisfies a model of correctness under a specification. The result is not an opinion but a proof obligation. That shift in
-          posture matters. It moves design from "looks right" to "is constrained in the right way," and from "we believe the logic is safe" to "we can
-          state the conditions under which it is safe."
+          Formal methods do not abolish the need for engineering judgment. They do something more useful: they turn the
+          judgment into a contract. Instead of asking whether a design seems correct under the test vectors one has run,
+          one asks whether it satisfies a model of correctness under a specification. That shift matters because it moves
+          design from a matter of intuition to a matter of obligation. If a valid/ready interface is supposed to be clean,
+          then the property can be stated. If a datapath is supposed to saturate correctly, then the arithmetic can be
+          constrained. If a state machine should not emit stale results under backpressure, then the invariant can be made
+          explicit. A machine that can be described this way is easier to reason about, easier to revise, and easier to
+          integrate with confidence.
         </p>
 
-        <p class="kicker">The system under discussion</p>
-        <h2>Some of the goals of the DPU</h2>
+        <p class="kicker">The hardware story</p>
+        <h2>Why a small prototype matters so much</h2>
         <p class="lead">
-          The work in <code>/dpu</code> is a good example of this philosophy in miniature. The focus is narrow but meaningful: a tile-level digital
-          processing unit for diffusion-style multiply-accumulate workloads. The design is intentionally small enough to reason about directly, yet rich enough
-          to carry the architecture's central concerns: signed arithmetic, bounded accumulation, valid/ready handshakes, saturation, and output stability
-          under backpressure. These are not decorative details. They are the kinds of obligations that become dangerous once they are scaled into arrays or
-          integrated into processors that never stop moving.
+          A useful example is a small accelerator block for a diffusion-style inference pipeline: simple enough to reason
+          about, rich enough to carry the real problems of hardware design. It contains signed arithmetic, bounded
+          accumulation, valid/ready handshakes, zero-length edge handling, and saturation under overload. None of this is
+          decorative. These are precisely the kinds of rules that become dangerous once a design is scaled into an array or
+          integrated into a larger processor. A system that can be proved at the tile level is not just a clever prototype;
+          it is a disciplined way of learning how the larger architecture will behave under pressure.
         </p>
 
         <section class="steps" aria-label="Hardware design goals">
           <article class="card">
             <h3>1. A tractable core</h3>
-            <p>The DPU tile is a small, verification-friendly primitive rather than a speculative full accelerator. This makes the specification and proofs easier to hold in view.</p>
+            <p>The first design goal is simplicity without emptiness: a small block with real protocol and arithmetic complexity, not an abstract toy.</p>
           </article>
           <article class="card">
-            <h3>2. A clear protocol</h3>
-            <p>The valid/ready interfaces establish the operating discipline explicitly: configuration, data intake, and final output are all part of the machine's contract.</p>
+            <h3>2. A clear contract</h3>
+            <p>Configuration, input flow, and output stability must all be explicit. That prevents the system from becoming a set of assumptions dressed as behavior.</p>
           </article>
           <article class="card">
-            <h3>3. Safety under edge cases</h3>
-            <p>Zero-length jobs, saturation, and held-output behavior are not side stories. They are the places where many arithmetic bugs hide in plain sight.</p>
+            <h3>3. Safety under edge conditions</h3>
+            <p>Zero-length jobs, held outputs, and saturation are the places where many otherwise elegant designs quietly fail.</p>
           </article>
           <article class="card">
-            <h3>4. A roadmap to scale</h3>
-            <p>The tile is a candidate building block for larger arrays, but the truth of the design is established before the architecture broadens.</p>
+            <h3>4. A path to scale</h3>
+            <p>A proven tile is not a final machine; it is the architecture's first honest statement of what it can safely become.</p>
           </article>
         </section>
-
-        <p class="kicker">The point of the exercise</p>
-        <h2>Not just to build faster hardware, but to build trusted hardware</h2>
-        <p class="lead">
-          Formal verification does not remove the need for engineering judgment. It gives judgment a sharper object. One can still choose a saturation
-          policy, a data format, or a throughput target. But once those choices are encoded in a proof-friendly specification, they stop being assumptions
-          floating in the room. They become parts of the system's contract. This is the real value of the modern hardware synthesis stack: not merely that it
-          turns invention into automation, but that it turns design intent into something reviewable, checkable, and reusable.
-        </p>
-
-        <p class="kicker">Outcomes</p>
-        <h2>Three kinds of confidence</h2>
-        <section class="outcomes" aria-label="Verification outcomes">
-          <article class="card">
-            <h3>Simulation</h3>
-            <p>Behavior is exercised under many concrete trajectories, including randomized and edge-heavy cases.</p>
-          </article>
-          <article class="card">
-            <h3>Formal assertions</h3>
-            <p>Key invariants are stated as obligations that the logic must satisfy in all relevant states.</p>
-          </article>
-          <article class="card">
-            <h3>Reusable proof base</h3>
-            <p>The evidence is retained as a basis for later design revisions rather than discarded after a single pass.</p>
-          </article>
-        </section>
-
-        <div class="cta">
-          <a class="button" href="mailto:jordanrule@gmail.com?subject=Turing%20Early%20Access">Request early access</a>
-          <a class="button secondary" href="/">Back to landing page</a>
-        </div>
 
         <p class="kicker">The schedule problem</p>
         <h2>Why formal verification is often a time-to-tape-out tool, not a paperwork exercise</h2>
         <p class="lead">
-          The tempting myth of hardware is that design work is slow because the logic is difficult. In truth, a great deal of schedule risk comes from
-          not knowing where the architecture will break when all the parts are finally assembled. A handshake bug, a width mismatch, an unsigned/signed
-          edge case, a stale control bit—these are the small things that are inexpensive in a notebook and ruinous after two months of place-and-route.
-          Formal verification is valuable precisely because it catches those failures before the project reaches the place where the factory calendar is the
-          only thing still moving. It turns a late-stage surprise into an early-stage correction.
+          The tempting myth of hardware is that design work is slow because the logic is difficult. In truth, a great deal
+          of schedule risk comes from uncertainty at precisely the wrong time. A handshake bug, a width mismatch, a signed
+          arithmetic mistake, a stale control bit—these are the small, expensive things that are harmless during a design
+          review and ruinous after two months of place-and-route. Formal verification matters because it catches those
+          failures before the project reaches the stage where the factory calendar becomes the only authority in the room.
         </p>
         <p class="lead">
-          This is the practical reason the discipline accelerates tape-out. A bug found in a specification or a small RTL prototype costs a few hours to fix.
-          The same bug found in post-synthesis validation can cost days or weeks of rescheduling, re-running timing, reviewing constraints, and negotiating a new
-          signoff plan. By the time a project reaches the final physical design pass, every day is a scarce object. A proof that eliminates a class of failures
-          earlier in the process is, in schedule terms, not overhead. It is a force multiplier.
+          This is why verification accelerates tape-out. A bug found in a specification or a small RTL prototype costs a
+          few hours to fix. The same bug found in post-synthesis validation can cost days or weeks of rescheduling,
+          re-running timing, reviewing constraints, and negotiating a new signoff plan. By the time a team reaches the final
+          physical design pass, every day is a scarce object. A proof that eliminates a class of failures earlier in the
+          process is not overhead. It is a force multiplier.
         </p>
 
         <p class="kicker">Case studies in what goes wrong</p>
-        <h2>When the architecture behaves beautifully in a demo and badly in the real world</h2>
+        <h2>When the product looks right in the lab and wrong in the world</h2>
         <p class="lead">
-          The history of hardware is full of systems that looked coherent in the abstract but fell apart in the details. A famous cautionary story is the
-          Apple Lisa: a machine built in a period when software, memory organization, and peripheral expectations were all in motion, and where the cost of
-          architecture drift was measured in engineering churn and product delay. The underlying lesson is not that one company failed because of one bug, but
-          that modern hardware projects are governed by the same rule as modern software: complexity is not a property of the drawing alone; it is a property
-          of the system under time pressure.
+          The Lisa story is not only a matter of one company making one mistake. It is a parable of the larger discipline.
+          The product was advanced for its day, and the idea was alluring, but the economics were too ambitious for a market
+          that was still learning what a graphical personal computer was really for. The lesson is not that the idea was
+          foolish; the lesson is that a product can fail in a hundred subtle ways before the market ever finishes deciding
+          whether it is a necessity. The dollars spent are not just sunk costs; they are a measure of time, people, and
+          strategic attention that could not be recovered.
         </p>
         <p class="lead">
-          More contemporary examples are easier to find in spirit, even when they are harder to narrate in public detail. A product launch can be delayed by
-          subsystem interactions, memory-contention assumptions, protocol mismatches, or validation gaps that appear only when the hardware is exercised under
-          realistic traffic. In these cases, the real culprit is not ambition; it is the unverified edge. A design that has been checked against a clear contract
-          at the protocol boundary is much easier to integrate, much harder to misread, and much easier to scale without a panic in the final quarter.
+          The modern equivalent, and arguably the more pointed one, is the story of Apple Vision Pro. It was a risk-laden
+          product, developed with extraordinary engineering effort and a level of ambition that suggested a new category
+          was being born. The market, however, did not answer with the enthusiasm that the investment case required. The
+          story is not simply that a product sold less than hoped. It is that the cost of being wrong in a hardware category
+          can be vast: not only the direct development spend, but the years of design energy, the manufacturing commitments,
+          the software roadmap, the retail narrative, and the opportunity cost of building a very expensive bet instead of
+          a more incremental one. In round numbers, the losses represented well over a hundred million dollars in direct
+          product work at the early stage, and the broader hit was far larger when measured in strategic attention and
+          capital allocation. In other words, the danger is not merely a poor sales quarter. It is the cost of mistaken
+          conviction in a market that is trying to tell you what it is willing to pay for.
         </p>
 
         <p class="kicker">A schedule-minded view</p>
         <h2>What formal methods buy in a silicon program</h2>
         <p class="lead">
-          A tape-out schedule is not a straight line. It is a sequence of compounding commitments: RTL freeze, lint and synthesis, timing closure, DFT,
-          physical design, power signoff, and manufacturing handoff. Every stage introduces new uncertainty. Formal methods help by resisting that uncertainty at
-          the boundary where it is cheapest to address. A valid/ready protocol checked early, a binding width check, a bounded arithmetic proof, a state-machine
-          invariant—these are not merely “nice to have” assertions. They are the kind of evidence that keeps the project moving when the rest of the system is
-          getting increasingly expensive to modify.
+          A tape-out schedule is not a straight line. It is a chain of compounding commitments: RTL freeze, lint, synthesis,
+          timing closure, DFT, physical design, power signoff, and manufacturing handoff. Each step introduces new
+          uncertainty. Formal methods help by resisting that uncertainty at the point where it is still cheapest to address.
+          A valid/ready protocol checked early, a width check, a bounded arithmetic proof, a state-machine invariant—these
+          are not “nice to have” assertions. They are the evidence that keeps a project moving when the rest of the system
+          is becoming more expensive to rework.
         </p>
         <p class="lead">
-          In practical terms, formal verification makes the roadmap more legible. A team can identify which bugs are architecture-level, which are micro-architectural,
-          and which are merely integration churn. That clarity changes timing behavior. Instead of discovering the deepest design holes during the last pass,
-          the team spends the middle of the project proving the parts that matter most, and spends the end of the project on optimization and closure rather than
-          re-architecture under duress. That is what it means to accelerate time to tape-out: not to rush the design, but to prevent the schedule from being eaten
-          by preventable uncertainty.
+          In practical terms, formal verification makes the roadmap more legible. A team can tell which bugs are
+          architecture-level, which are micro-architectural, and which are merely integration churn. That clarity changes the
+          schedule. Instead of discovering the deepest design holes during the last pass, the team spends the middle of the
+          project proving the parts that matter most and preserves the end of the project for optimization and closure rather
+          than re-architecture under duress. That is what it means to accelerate time to tape-out: not to rush the design,
+          but to prevent the schedule from being consumed by preventable uncertainty.
         </p>
 
         <p class="kicker">The moral</p>
         <h2>Trust is not a final report; it is a design habit</h2>
         <p class="lead">
-          Hardware synthesis has always been a contest between the complexity of the idea and the clarity of the methods. The modern answer is to build trust into
-          the flow: define the protocol, encode the invariants, prove the edge conditions, and then proceed to synthesis with fewer surprises. That is not a theoretical
-          luxury. It is the difference between a project that reaches the foundry with confidence and one that reaches it with a folder of tickets and a prayer.
+          The Lisa taught the industry that ambition can outrun the market. The Vision Pro reminds us that even a very
+          expensive invention can be wrong about the world it expects to enter. The broader lesson for hardware synthesis is
+          plain: a design becomes more valuable not because it is expensive, but because it is disciplined. The modern answer
+          is not merely to automate translation from logic to netlist. It is to build trust into the flow: define the protocol,
+          encode the invariants, prove the edge conditions, and proceed with fewer surprises. That is not a theoretical luxury.
+          It is the difference between a project that reaches the foundry with confidence and one that reaches it with a folder
+          of tickets and a prayer.
         </p>
       </main>
 
