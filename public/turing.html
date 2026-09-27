@@ -411,6 +411,63 @@
           <a class="button" href="mailto:jordanrule@gmail.com?subject=Turing%20Early%20Access">Request early access</a>
           <a class="button secondary" href="/">Back to landing page</a>
         </div>
+
+        <p class="kicker">The schedule problem</p>
+        <h2>Why formal verification is often a time-to-tape-out tool, not a paperwork exercise</h2>
+        <p class="lead">
+          The tempting myth of hardware is that design work is slow because the logic is difficult. In truth, a great deal of schedule risk comes from
+          not knowing where the architecture will break when all the parts are finally assembled. A handshake bug, a width mismatch, an unsigned/signed
+          edge case, a stale control bit—these are the small things that are inexpensive in a notebook and ruinous after two months of place-and-route.
+          Formal verification is valuable precisely because it catches those failures before the project reaches the place where the factory calendar is the
+          only thing still moving. It turns a late-stage surprise into an early-stage correction.
+        </p>
+        <p class="lead">
+          This is the practical reason the discipline accelerates tape-out. A bug found in a specification or a small RTL prototype costs a few hours to fix.
+          The same bug found in post-synthesis validation can cost days or weeks of rescheduling, re-running timing, reviewing constraints, and negotiating a new
+          signoff plan. By the time a project reaches the final physical design pass, every day is a scarce object. A proof that eliminates a class of failures
+          earlier in the process is, in schedule terms, not overhead. It is a force multiplier.
+        </p>
+
+        <p class="kicker">Case studies in what goes wrong</p>
+        <h2>When the architecture behaves beautifully in a demo and badly in the real world</h2>
+        <p class="lead">
+          The history of hardware is full of systems that looked coherent in the abstract but fell apart in the details. A famous cautionary story is the
+          Apple Lisa: a machine built in a period when software, memory organization, and peripheral expectations were all in motion, and where the cost of
+          architecture drift was measured in engineering churn and product delay. The underlying lesson is not that one company failed because of one bug, but
+          that modern hardware projects are governed by the same rule as modern software: complexity is not a property of the drawing alone; it is a property
+          of the system under time pressure.
+        </p>
+        <p class="lead">
+          More contemporary examples are easier to find in spirit, even when they are harder to narrate in public detail. A product launch can be delayed by
+          subsystem interactions, memory-contention assumptions, protocol mismatches, or validation gaps that appear only when the hardware is exercised under
+          realistic traffic. In these cases, the real culprit is not ambition; it is the unverified edge. A design that has been checked against a clear contract
+          at the protocol boundary is much easier to integrate, much harder to misread, and much easier to scale without a panic in the final quarter.
+        </p>
+
+        <p class="kicker">A schedule-minded view</p>
+        <h2>What formal methods buy in a silicon program</h2>
+        <p class="lead">
+          A tape-out schedule is not a straight line. It is a sequence of compounding commitments: RTL freeze, lint and synthesis, timing closure, DFT,
+          physical design, power signoff, and manufacturing handoff. Every stage introduces new uncertainty. Formal methods help by resisting that uncertainty at
+          the boundary where it is cheapest to address. A valid/ready protocol checked early, a binding width check, a bounded arithmetic proof, a state-machine
+          invariant—these are not merely “nice to have” assertions. They are the kind of evidence that keeps the project moving when the rest of the system is
+          getting increasingly expensive to modify.
+        </p>
+        <p class="lead">
+          In practical terms, formal verification makes the roadmap more legible. A team can identify which bugs are architecture-level, which are micro-architectural,
+          and which are merely integration churn. That clarity changes timing behavior. Instead of discovering the deepest design holes during the last pass,
+          the team spends the middle of the project proving the parts that matter most, and spends the end of the project on optimization and closure rather than
+          re-architecture under duress. That is what it means to accelerate time to tape-out: not to rush the design, but to prevent the schedule from being eaten
+          by preventable uncertainty.
+        </p>
+
+        <p class="kicker">The moral</p>
+        <h2>Trust is not a final report; it is a design habit</h2>
+        <p class="lead">
+          Hardware synthesis has always been a contest between the complexity of the idea and the clarity of the methods. The modern answer is to build trust into
+          the flow: define the protocol, encode the invariants, prove the edge conditions, and then proceed to synthesis with fewer surprises. That is not a theoretical
+          luxury. It is the difference between a project that reaches the foundry with confidence and one that reaches it with a folder of tickets and a prayer.
+        </p>
       </main>
 
       <footer>
