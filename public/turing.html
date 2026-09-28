@@ -152,11 +152,17 @@
 
       h1 {
         font-size: clamp(2.2rem, 5.4vw, 3.25rem);
+        max-width: 18ch;
         margin-bottom: var(--space-3);
       }
 
       h2 {
         font-size: clamp(1.28rem, 3vw, 1.62rem);
+      }
+
+      main > h2 {
+        max-width: 24ch;
+        margin-bottom: 0.95rem;
       }
 
       .kicker {
@@ -173,8 +179,12 @@
       }
 
       p {
-        margin: 0 0 1.2rem 0;
+        margin: 0;
         max-width: 74ch;
+      }
+
+      p + p {
+        margin-top: 1rem;
       }
 
       .lead {
@@ -252,6 +262,7 @@
         line-height: 1.45;
         color: var(--muted);
         white-space: nowrap;
+        overflow-wrap: anywhere;
       }
 
       .citation a {
@@ -300,6 +311,10 @@
         nav {
           grid-area: nav;
           justify-self: end;
+        }
+
+        h1 {
+          max-width: none;
         }
       }
     </style>
