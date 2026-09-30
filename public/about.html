@@ -186,23 +186,25 @@
         color: var(--muted);
       }
 
-      .panel {
-        margin-top: var(--space-4);
-        padding: 1.1rem 1rem 1rem;
-        border-top: 2px solid var(--line);
-        border-bottom: 1px solid var(--line-soft);
-        background: var(--panel);
-        color: var(--panel-text);
-      }
-
-      .panel p {
-        margin-top: 0;
-      }
-
-      .cite-note {
-        margin-top: var(--space-4);
+      .connect {
+        margin: 0.85rem 0 1.35rem;
+        font-size: 0.83rem;
+        line-height: 1.45;
         color: var(--muted);
-        font-size: 0.92rem;
+        max-width: none;
+      }
+
+      .connect a {
+        color: var(--muted);
+        text-underline-offset: 0.12em;
+      }
+
+      .aside {
+        max-width: 60ch;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: var(--muted);
+        margin-top: 0.25rem;
       }
 
       footer {
@@ -286,26 +288,28 @@
         <p class="lead">
           Jordan is an alignment researcher based in Austin, TX with a background in sensitive implementation in highly
           regulated environments. He holds technical degrees from Rice University, where he serves on the engineering
-          alumni committee, and the University of Chicago. His specific interest is in computational theory with
+          alumni committee, and The University of Chicago. His specific interest is in computational theory with
           applications to program synthesis, hardware synthesis, and loss of control.
         </p>
 
-        <div class="panel">
-          <p>
-            He believes the weird will inherit the earth, whether they want to or not. His p(doom) is the lack of allies
-            they make along the way.
-          </p>
-        </div>
+        <p class="connect">
+          Connect: <a href="https://github.com/jordanrule" target="_blank" rel="noopener noreferrer">GitHub</a> ·
+          <a href="https://x.com/turingops" target="_blank" rel="noopener noreferrer">X</a>
+        </p>
 
-        <p class="cite-note">
-          The work here aims to make difficult systems easier to inspect, easier to discuss, and harder to misunderstand.
+        <p class="aside">
+          He believes the weird will inherit the earth, whether they want to or not. His p(doom) is the lack of allies
+          they make along the way.
         </p>
       </main>
 
       <footer>
         <p class="citation">
-          Connect: <a href="https://github.com/jordanrule" target="_blank" rel="noopener noreferrer">GitHub</a> ·
-          <a href="https://x.com/turingops" target="_blank" rel="noopener noreferrer">X</a>
+          Explore: <a href="/">Home</a> · <a href="/turing.html">Hardware Synthesis</a> ·
+          <a href="/world_model.html">Dependently Typed World Models</a> ·
+          <a href="https://turingops.ai/world_model_paper.pdf">White Paper</a> ·
+          <a href="/about.html">About</a> ·
+          <a href="https://github.com/TuringOp" target="_blank" rel="noopener noreferrer">GitHub</a>
         </p>
       </footer>
     </div>
