@@ -6,6 +6,7 @@ const root = process.cwd();
 const requiredPaths = [
   'public',
   'public/index.html',
+  'public/about.html',
   'public/turing.html',
   'public/world_model.html',
   'public/robots.txt',

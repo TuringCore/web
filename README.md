@@ -1,13 +1,14 @@
 # Turing Website
 
-A small static two-page marketing site for Turing, configured for Cloudflare Workers.
+A small static three-page marketing site for Turing, configured for Cloudflare Workers.
 
 ## Project files
 
 - `public/index.html` — page structure and styling
+- `public/about.html` — About page for Jordan Rule
 - `public/turing.html` — product detail page for Turing
 - `public/robots.txt` — crawler directives and sitemap location
-- `public/sitemap.xml` — sitemap entry for `https://turingops.ai/`
+- `public/sitemap.xml` — sitemap entry for `https://turingops.ai/` and its public pages
 - `worker.js` — Cloudflare Worker for static assets plus `/api/music/generate` and `/api/music/healthz` proxy routes
 - `cloudflared/config.template.yml` — template for exposing local/backend API at `music-api.turingops.ai`
 - `wrangler.toml` — Cloudflare Workers configuration
@@ -64,5 +65,6 @@ If you are deploying from a Git-connected Cloudflare project, also make sure the
 - Styling is embedded in `public/index.html` to keep the site portable and simple.
 - The project is pinned to `wrangler` 3.x so it can be validated locally on Node 18 in this workspace.
 - Canonical production URL is `https://turingops.ai/` and is referenced in SEO metadata and sitemap files.
+- `public/about.html` provides the public About page linked from the shared footer.
 - `npm run verify:cloudflare` checks that the required deploy files exist before a dry run or real deploy.
 
