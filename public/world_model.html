@@ -561,22 +561,22 @@ Definition single_action (a : nat) : CheckedRollout :=
             </div>
 
             <p>
-              This is the mathematical pearl the section is reaching for: a latent state should become admissible
-              only when its pieces agree on the overlaps where they meet. A compact way to write that is
+              This is the mathematical pearl the section is reaching for: JEPA contributes a family of partial
+              views, and admissibility is the claim that those views can be composed into one usable latent state.
+              A compact way to write that is
             </p>
 
             <div class="callout" style="font-style: normal;">
               <p>
-                <code>𝒜 = { z = z₁ ⊕ ⋯ ⊕ zₙ ∈ 𝒵 : zᵢ|₍ᵢⱼ₎ = zⱼ|₍ᵢⱼ₎ on every overlap }</code>
+                <code>𝒜 = { z = ⊕ᵢ vᵢ ∈ 𝒵 : ∃ c, vᵢ = πᵢ(enc_JEPA(c)) ∧ Compat(v₁, …, vₙ) }</code>
               </p>
             </div>
 
             <p>
-              Here, the <code>zᵢ</code> are partial latent states, the restriction symbols mean agreement where two
-              pieces touch, and <code>⊕</code> is lawful composition. JEPA supplies the partial views: it learns a
-              representation from incomplete context and tries to preserve the structure that remains stable under
-              that partial glimpse. Dependent types then supply the checkable contract, so a composed state counts
-              as admissible only when the evidence that supports it is actually present.
+              Here, the <code>vᵢ</code> are the partial views extracted from a JEPA encoder, <code>πᵢ</code> names
+              the projection onto the <code>i</code>-th view, and <code>Compat</code> is the check that lets the
+              views compose. Dependent types then supply the contract, so a composed state counts as admissible only
+              when the evidence that supports it is actually present.
             </p>
           </section>
 
