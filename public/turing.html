@@ -216,6 +216,29 @@
         margin-top: 0;
       }
 
+      .inline-figure {
+        width: min(100%, 74ch);
+        margin: 1.2rem 0 0.5rem;
+        padding: 0.75rem 0.75rem 0.55rem;
+        background: var(--panel);
+        border-top: 2px solid var(--line);
+        border-bottom: 1px solid var(--line-soft);
+      }
+
+      .inline-figure img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+      }
+
+      .inline-figure figcaption {
+        margin-top: 0.6rem;
+        font-size: 0.78rem;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+
       .cta {
         margin-top: var(--space-5);
         padding-top: var(--space-3);
@@ -344,6 +367,11 @@
           of investment before the world decides whether it wants it.
         </p>
 
+        <figure class="inline-figure">
+          <img src="/lisa.jpg" alt="Apple Lisa computer" />
+          <figcaption>Apple Lisa, a machine whose ambitions outran the market with a particular kind of optimism.</figcaption>
+        </figure>
+
         <p class="kicker">The parable</p>
         <h2>Market timing matters more than elegance</h2>
         <p class="lead">
@@ -436,6 +464,11 @@
           physical design pass, every day is a scarce object. A proof that eliminates a class of failures earlier in the
           process is not overhead. It is a force multiplier.
         </p>
+
+        <figure class="inline-figure">
+          <img src="/vision.jpg" alt="Apple Vision Pro" />
+          <figcaption>Apple Vision Pro, a contemporary cautionary tale about expensive hardware conviction and delayed market confidence.</figcaption>
+        </figure>
 
         <p class="kicker">Case studies in what goes wrong</p>
         <h2>When the product looks right in the lab and wrong in the world</h2>
