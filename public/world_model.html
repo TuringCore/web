@@ -445,7 +445,7 @@
           A world model is a machine's way of rehearsing the next move before it is made. It gathers perception,
           compresses it into a usable inner sketch, and lets action be tested against a future that has not happened
           yet. The case for a dependently typed version is not that it makes imagination grander. It is that it makes
-          imagination accountable: the model should be able to say not only what it expects, but what it is entitled
+          purpose accountable: the model should be able to say not only what it expects, but what it is entitled
           to claim.
         </p>
 
@@ -561,12 +561,17 @@ Definition single_action (a : nat) : CheckedRollout :=
             </div>
 
             <p>
-              That is a tiny example, almost childlike, and that is precisely why it matters. It shows, in miniature,
-              that claims about state can be made explicit and inseparable from the state itself—not asserted
-              somewhere above, not checked somewhere below, but present by construction. JEPA fits the first half of
-              that sentence neatly because it learns structure from partial context without pretending to see the
-              whole room. Dependent typing supplies the second half: the prediction is only actionable when the
-              surrounding evidence is still in order.
+              This small example is doing a very specific kind of work. It says that a model should not treat
+              state as a vague summary floating beside the system; the relevant claim should travel with the state
+              itself, in a form that can be checked. JEPA points in that direction because it learns predictive
+              representations from partial context: it is trying to preserve the structure that remains stable when
+              the full scene is not available, rather than pretending that every detail must already be visible.
+
+              Dependent typing adds the missing discipline. If a representation is only meaningful under certain
+              conditions, those conditions can be carried in the type, so the system can distinguish a usable state
+              from one that merely looks plausible. In that sense, the dependent type is not decorative; it is the
+              mechanism that turns a learned latent representation into an admissible one, by making the required
+              evidence part of the object itself.
             </p>
           </section>
 
