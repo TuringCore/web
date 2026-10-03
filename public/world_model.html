@@ -322,6 +322,20 @@
         min-width: 0;
       }
 
+      .figure-inline img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+      }
+
+      .figure-inline figcaption {
+        margin-top: 0.7rem;
+        font-size: 0.8rem;
+        line-height: 1.4;
+        color: var(--panel-muted);
+      }
+
       .figure-title {
         margin: 0 0 0.65rem;
         font-family: Georgia, "Times New Roman", Times, serif;
@@ -491,6 +505,12 @@
               under a rollout. What they are worse at telling us is what must remain true regardless of how the story
               unfolds. They are good with likelihood and weak on legitimacy.
             </p>
+
+            <figure class="figure-inline" aria-label="Robot and V-JEPA 2 imagery">
+              <img src="/robot.jpg" alt="Robot illustration related to V-JEPA 2" />
+              <figcaption>World models are not a single camera angle, but a system that assembles many partial views into a stable, actionable representation—closer to the V-JEPA 2 instinct than to a literal reconstruction.</figcaption>
+            </figure>
+
             <p>
               This is where many contemporary systems become eloquent and vague at once. The model can say, in effect,
               “I expect the future to look like this.” What it cannot easily say is, “Only futures of this permitted
@@ -631,7 +651,7 @@ Definition single_action (a : nat) : CheckedRollout :=
             <p>
               A dependently typed world model would not abolish error, policy, or judgment. It would simply bring more
               of a system's assumptions into view, in machine-checked form. That may be the most human thing we can ask
-              of a machine: not to be infallible, but to be honest about what it knows—and to carry the proof.
+              of a machine: not to be infallibility, but to be honest about what it knows—and to carry the proof.
             </p>
           </section>
         </div>
