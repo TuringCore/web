@@ -561,17 +561,22 @@ Definition single_action (a : nat) : CheckedRollout :=
             </div>
 
             <p>
-              This small example is doing a very specific kind of work. It says that a model should not treat
-              state as a vague summary floating beside the system; the relevant claim should travel with the state
-              itself, in a form that can be checked. JEPA points in that direction because it learns predictive
-              representations from partial context: it is trying to preserve the structure that remains stable when
-              the full scene is not available, rather than pretending that every detail must already be visible.
+              This is the mathematical pearl the section is reaching for: a latent state should become admissible
+              only when its pieces agree on the overlaps where they meet. A compact way to write that is
+            </p>
 
-              Dependent typing adds the missing discipline. If a representation is only meaningful under certain
-              conditions, those conditions can be carried in the type, so the system can distinguish a usable state
-              from one that merely looks plausible. In that sense, the dependent type is not decorative; it is the
-              mechanism that turns a learned latent representation into an admissible one, by making the required
-              evidence part of the object itself.
+            <div class="callout" style="font-style: normal;">
+              <p>
+                <code>𝒜 = { z = z₁ ⊕ ⋯ ⊕ zₙ ∈ 𝒵 : zᵢ|₍ᵢⱼ₎ = zⱼ|₍ᵢⱼ₎ on every overlap }</code>
+              </p>
+            </div>
+
+            <p>
+              Here, the <code>zᵢ</code> are partial latent states, the restriction symbols mean agreement where two
+              pieces touch, and <code>⊕</code> is lawful composition. JEPA supplies the partial views: it learns a
+              representation from incomplete context and tries to preserve the structure that remains stable under
+              that partial glimpse. Dependent types then supply the checkable contract, so a composed state counts
+              as admissible only when the evidence that supports it is actually present.
             </p>
           </section>
 
