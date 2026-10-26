@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Turing | Diffusion Economics</title>
+    <meta
+      name="description"
+      content="A technical article on proving diffusion inference economics with an AWS EC2 F2 FPGA deployment, a measured GPU baseline, and the path to ASIC tape-out."
+    />
+    <meta
+      name="keywords"
+      content="diffusion economics, SDXL, AWS EC2 F2, FPGA inference, ASIC, DPU, diffusion accelerator, GPU benchmark, inference cost"
+    />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#f3eee6" />
+    <meta name="application-name" content="Turing" />
+    <link rel="canonical" href="https://turingops.ai/diffusion_economics.html" />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="https://turingops.ai/sitemap.xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://turingops.ai/diffusion_economics.html" />
+    <meta property="og:title" content="Turing | Diffusion Economics" />
+    <meta
+      property="og:description"
+      content="How to prove diffusion inference economics with an FPGA deployment in AWS EC2 F2 and use that evidence to decide whether a custom ASIC should exist."
+    />
+    <meta property="og:site_name" content="Turing" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:url" content="https://turingops.ai/diffusion_economics.html" />
+    <meta name="twitter:title" content="Turing | Diffusion Economics" />
+    <meta
+      name="twitter:description"
+      content="A practical report on GPU-vs-FPGA diffusion economics, including the model, quantization, measurement plan, and ASIC decision gate."
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Diffusion Economics",
+        "url": "https://turingops.ai/diffusion_economics.html",
+        "description": "A technical essay on measuring diffusion inference economics on GPU and AWS EC2 F2 FPGA hardware and deciding whether a custom ASIC is justified.",
+        "author": {
+          "@type": "Organization",
+          "name": "Turing"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Turing",
+          "url": "https://turingops.ai/"
+        },
+        "mainEntityOfPage": "https://turingops.ai/diffusion_economics.html",
+        "about": [
+          "diffusion economics",
+          "SDXL",
+          "AWS EC2 F2",
+          "FPGA inference",
+          "ASIC tape-out",
+          "GPU benchmarking"
+        ]
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #ffffff;
+        --panel: #f3eee6;
+        --panel-strong: #e7dfd2;
+        --panel-text: #111111;
+        --panel-muted: #685d52;
+        --text: #111111;
+        --line: #27231f;
+        --line-soft: #cdc4b6;
+        --muted: #685d52;
+        --accent: #22384c;
+        --accent-text: #ffffff;
+        --content-max: 76ch;
+        --space-1: 0.45rem;
+        --space-2: 0.8rem;
+        --space-3: 1.2rem;
+        --space-4: 1.8rem;
+        --space-5: 2.4rem;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        font-size: 18px;
+        color: var(--text);
+        background: var(--bg);
+        line-height: 1.68;
+        overflow-x: clip;
+      }
+
+      a {
+        color: var(--accent);
+        text-underline-offset: 0.12em;
+      }
+
+      .wrap {
+        width: min(1100px, 92vw);
+        margin: 0 auto;
+        padding: 1rem 0 2.8rem;
+      }
+
+      .masthead {
+        border-bottom: 1px solid var(--line-soft);
+        border-top: 2px solid var(--line);
+        padding: var(--space-2) 0;
+      }
+
+      .masthead-row {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .masthead-note {
+        margin: 0;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .brand {
+        font-family: Georgia, "Times New Roman", Times, serif;
+        font-size: clamp(1.45rem, 2.8vw, 1.95rem);
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        text-decoration: none;
+        text-align: center;
+        color: var(--text);
+      }
+
+      nav {
+        justify-self: end;
+      }
+
+      nav a {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text);
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+      }
+
+      nav a + a { margin-left: 0.9rem; }
+
+      nav a:hover,
+      nav a:focus-visible { border-bottom-color: var(--line); }
+
+      main { margin-top: var(--space-4); }
+
+      h1, h2, h3 {
+        font-family: Georgia, "Times New Roman", Times, serif;
+        font-weight: 600;
+        line-height: 1.14;
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(2.3rem, 5.4vw, 3.4rem);
+        max-width: 15ch;
+        margin-bottom: var(--space-3);
+      }
+
+      h2 { font-size: clamp(1.34rem, 3vw, 1.72rem); }
+      h3 { font-size: 1.06rem; }
+
+      p {
+        margin: 0;
+        max-width: min(var(--content-max), 100%);
+      }
+
+      pre {
+        margin: 0;
+        max-width: 100%;
+      }
+
+      p + p { margin-top: 1rem; }
+
+      code {
+        font-family: "SFMono-Regular", SFMono-Regular, ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.93em;
+      }
+
+      .kicker {
+        display: block;
+        margin: var(--space-5) 0 var(--space-1);
+        font-size: 0.72rem;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: var(--muted);
+      }
+
+      main > .kicker:first-child { margin-top: 0; }
+
+      .lead {
+        max-width: min(var(--content-max), 100%);
+        color: var(--muted);
+        font-size: 1.12rem;
+        line-height: 1.74;
+      }
+
+      .article {
+        display: grid;
+        gap: 1.25rem;
+        min-width: 0;
+      }
+
+      .section {
+        display: grid;
+        gap: 0.9rem;
+        min-width: 0;
+      }
+
+      .article > *,
+      .section > *,
+      .two-col > *,
+      .mini-card > * {
+        min-width: 0;
+      }
+
+      .section h2 { max-width: 24ch; }
+      .section p { hanging-punctuation: first; }
+
+      .callout {
+        width: min(100%, var(--content-max));
+        max-width: 100%;
+        padding: 1.05rem 1rem 0.95rem;
+        background: var(--panel);
+        border-top: 2px solid var(--line);
+        border-bottom: 1px solid var(--line-soft);
+        color: var(--panel-text);
+        font-style: italic;
+      }
+
+      .code-block {
+        width: min(100%, var(--content-max));
+        max-width: 100%;
+        margin: 0;
+        padding: 1rem;
+        background: var(--panel-strong);
+        border: 1px solid var(--line-soft);
+        color: var(--panel-text);
+        overflow-x: auto;
+        font-size: 0.9rem;
+        line-height: 1.54;
+      }
+
+      .code-label {
+        display: inline-block;
+        margin-bottom: 0.4rem;
+        font-size: 0.76rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--panel-muted);
+      }
+
+      .two-col {
+        display: grid;
+        gap: 1rem;
+        min-width: 0;
+      }
+
+      .mini-card {
+        padding: 1rem 1rem 0.9rem;
+        border-top: 2px solid var(--line);
+        border-bottom: 1px solid var(--line-soft);
+        background: var(--panel);
+        color: var(--panel-text);
+        min-width: 0;
+      }
+
+      .mini-card p { max-width: none; }
+
+      .figure-inline {
+        width: min(100%, var(--content-max));
+        max-width: 100%;
+        margin: 0;
+        padding: 1rem;
+        background: var(--panel);
+        border-top: 2px solid var(--line);
+        border-bottom: 1px solid var(--line-soft);
+        color: var(--panel-text);
+        min-width: 0;
+      }
+
+      .figure-inline img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+      }
+
+      .figure-inline figcaption {
+        margin-top: 0.7rem;
+        font-size: 0.8rem;
+        line-height: 1.4;
+        color: var(--panel-muted);
+      }
+
+      .figure-title {
+        margin: 0 0 0.65rem;
+        font-family: Georgia, "Times New Roman", Times, serif;
+        font-size: 1.02rem;
+        line-height: 1.3;
+      }
+
+      .figure-grid {
+        display: grid;
+        gap: 0.55rem;
+      }
+
+      .figure-step {
+        padding: 0.55rem 0.6rem;
+        border: 1px solid var(--line-soft);
+        background: var(--panel-strong);
+        color: var(--panel-text);
+        font-size: 0.91rem;
+        line-height: 1.45;
+      }
+
+      .figure-arrow {
+        text-align: center;
+        font-size: 0.95rem;
+        line-height: 1;
+        color: var(--panel-muted);
+      }
+
+      .figure-caption {
+        margin-top: 0.7rem;
+        font-size: 0.8rem;
+        line-height: 1.4;
+        color: var(--panel-muted);
+      }
+
+      footer {
+        margin-top: calc(var(--space-5) + 0.4rem);
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--line-soft);
+      }
+
+      .citation {
+        max-width: none;
+        font-size: 0.83rem;
+        line-height: 1.45;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow-wrap: anywhere;
+      }
+
+      .citation a { color: var(--muted); }
+
+      @media (min-width: 860px) {
+        .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+
+      @media (max-width: 759px) {
+        body { font-size: 17px; }
+        .citation { white-space: normal; }
+
+        .masthead-row {
+          grid-template-columns: 1fr auto;
+          grid-template-areas:
+            "note nav"
+            "brand brand";
+          align-items: baseline;
+          text-align: center;
+        }
+
+        .masthead-note {
+          grid-area: note;
+          text-align: left;
+        }
+
+        .brand {
+          grid-area: brand;
+          margin-top: var(--space-1);
+        }
+
+        nav {
+          grid-area: nav;
+          justify-self: end;
+        }
+
+        nav a + a { margin-left: 0.65rem; }
+        h1 { max-width: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="masthead">
+        <div class="masthead-row">
+          <p class="masthead-note">Experiment Design</p>
+          <a class="brand" href="/">Turing</a>
+          <nav aria-label="Primary">
+            <a href="/">Home</a>
+            <a href="/turing.html">Hardware Synthesis</a>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <p class="kicker">System design</p>
+        <h1>Diffusion Economics</h1>
+        <p class="lead">
+          The question for diffusion inference is no longer simply whether a model can run on a piece of hardware. The real question is whether the platform can deliver useful images at a cost the market will bear, with a power and utilization profile that makes the service commercially durable. A strong answer requires a measured baseline, a controlled FPGA prototype, and a clean economic model that is honest about what is measured, what is simulated, and what remains a hypothesis.
+        </p>
+
+        <div class="article">
+          <section class="section" aria-labelledby="why-this-matters">
+            <p class="kicker">The benchmark</p>
+            <h2 id="why-this-matters">A diffusion system is only as good as its cost curve</h2>
+            <p>
+              For many image-generation workloads, the dominant metric in the press is raw peak flops or benchmark throughput. That is a useful engineering number, not a business one. A design can be “fast” in a spreadsheet and still be uncompetitive in production if it burns too much power, requires too much memory traffic, or sits idle between requests. Diffusion inference is especially unforgiving because it combines unstable memory access patterns, attention-heavy operators, and a strong dependence on software stack maturity.
+            </p>
+            <p>
+              In practice, the right benchmark is the cost of a useful output: time to first image, cost per equivalent-quality image, energy per image, and the fraction of a server spent doing useful work. Those metrics become the deciding test. A chip with a smaller silicon footprint and lower memory traffic can dominate even if its absolute FLOPs are lower. Conversely, a platform with good peak numbers can still lose if its runtime overhead and utilization are poor.
+            </p>
+            <div class="callout">
+              <p>
+                The objective is not to win a synthetic benchmark. It is to produce a measured economic result: images/sec, dollars per 1,000 images, energy per image, and a feasibility story for a future ASIC.
+              </p>
+            </div>
+          </section>
+
+          <section class="section" aria-labelledby="experiment-path">
+            <p class="kicker">The experiment</p>
+            <h2 id="experiment-path">Measure the GPU, run on EC2 F2, then decide whether the ASIC story survives the first real test</h2>
+            <p>
+              The cleanest plan is a three-part experiment. First, measure a real GPU baseline on a diffusion model under fixed conditions. Second, deploy the DPU tile or a small matrix engine to an AWS EC2 F2 instance and run the same prompts and scheduler settings. Third, compare the results through a cost model that includes host overhead, power, utilization, memory, and server amortization.
+            </p>
+            <div class="two-col">
+              <article class="mini-card">
+                <h3>GPU baseline</h3>
+                <p>
+                  Use a real CUDA environment; fix the diffusion model, prompt set, scheduler, resolution, steps, batch size, and seed. Record image quality, throughput, power, and total service cost.
+                </p>
+              </article>
+              <article class="mini-card">
+                <h3>EC2 F2 FPGA prototype</h3>
+                <p>
+                  Synthesize the DPU tile or a minimal matrix engine, deploy to EC2 F2, and measure end-to-end inference, host-device latency, utilization, and power under the same workload.
+                </p>
+              </article>
+              <article class="mini-card">
+                <h3>Quantization sweep</h3>
+                <p>
+                  Compare FP16, INT8/W8A8, and W4A8 ranges when supported. The decision is not just speed; it is the best quality-per-dollar frontier.
+                </p>
+              </article>
+              <article class="mini-card">
+                <h3>ASIC gate</h3>
+                <p>
+                  The ASIC is justified only if the FPGA prototype shows a credible 2x to 5x cost-per-image advantage at comparable quality under realistic utilization.
+                </p>
+              </article>
+            </div>
+          </section>
+
+          <section class="section" aria-labelledby="model-sweep">
+            <p class="kicker">The model choice</p>
+            <h2 id="model-sweep">The first model should be the real one, even if the architecture is still in flux</h2>
+            <p>
+              The repo is already oriented toward SDXL as a meaningful diffusion workload. That is a good starting point because it makes the economics relevant. The experimental design should hold the model fixed while varying the hardware and quantization regime. That keeps the comparison honest.
+            </p>
+            <p>
+              A recommended workload is: SDXL base, 1024x1024 output, CFG enabled, 20-step baseline, 20–50 prompts, fixed seeds, and a modest batch sweep. The simplest comparison is still a real apples-to-apples one: same prompt, same scheduler, same denoising steps, same batch assumptions, same quality measurement.
+            </p>
+            <p>
+              For quantization, the useful regime is not “one bit-width wins.” It is the Quality–Speed–Cost frontier. The correct questions are: what is the minimum precision that still yields acceptable output; how much latency and memory does that policy save; and what reduction in cost per image does it buy on the actual platform? That is far more useful than claiming a generic advantage from INT8 or FP8 in isolation.
+            </p>
+            <div class="callout">
+              <p>
+                Use a fixed prompt set and fixed seeds across all runs; otherwise the comparison is not just hardware-vs-hardware but story-vs-story.
+              </p>
+            </div>
+          </section>
+
+          <section class="section" aria-labelledby="what-measure">
+            <p class="kicker">What to measure</p>
+            <h2 id="what-measure">The metrics that matter are the ones a service operator can actually pay for</h2>
+            <p>
+              The measurement plan must track all the costs of a serving system rather than just chip-level numbers. On the GPU side, measure actual throughput, latency, power at the wall, memory footprint, and the software stack in production mode. For the FPGA side, record the bitstream deployment, device runtime, DRAM traffic, DMA overhead, utilization, and total instance power. The key outputs are:
+            </p>
+            <div class="two-col">
+              <article class="mini-card">
+                <h3>Images/sec</h3>
+                <p>Throughput under the same batch and warm-start conditions.</p>
+              </article>
+              <article class="mini-card">
+                <h3>Latency</h3>
+                <p>Median, p95, and queueing delay including scheduler and host overhead.</p>
+              </article>
+              <article class="mini-card">
+                <h3>Energy/image</h3>
+                <p>Power at the wall and instance-level efficiency, not just device-level TDP.</p>
+              </article>
+              <article class="mini-card">
+                <h3>Cost/1,000 images</h3>
+                <p>Server cost, host amortization, electricity, utilization, and maintenance folded into one number.</p>
+              </article>
+            </div>
+            <p>
+              A system that is expensive to host, expensive to cool, or hard to keep utilized will pass the raw throughput check and fail the economic check. The reason to run the experiment on AWS EC2 F2 is precisely to force these real-world variables into the model before anyone writes a tape-out plan.
+            </p>
+          </section>
+
+          <section class="section" aria-labelledby="decision-gate">
+            <p class="kicker">The decision gate</p>
+            <h2 id="decision-gate">The ASIC is justified only when the measured system economics are stronger than the GPU</h2>
+            <p>
+              This is the crucial policy choice. A DPU tile is interesting only if it wins the operational question: does it lower the total cost of useful generation at equal or better quality? The project should keep a clean gate:
+            </p>
+            <figure class="figure-inline" aria-label="Diffusion economics decision flow">
+              <h3 class="figure-title">Figure 1. Decision flow for FPGA-to-ASIC diffusion economics</h3>
+              <div class="figure-grid">
+                <div class="figure-step">Measure GPU baseline and fixed-prompt diffusion workload.</div>
+                <div class="figure-arrow">↓</div>
+                <div class="figure-step">Deploy DPU prototype to AWS EC2 F2 and measure real power, latency, and throughput.</div>
+                <div class="figure-arrow">↓</div>
+                <div class="figure-step">Sweep quantization and workload parameters to find the cost/performance frontier.</div>
+                <div class="figure-arrow">↓</div>
+                <div class="figure-step">Run the economics model on the measured numbers; proceed only if the advantage remains large and durable.</div>
+              </div>
+              <figcaption class="figure-caption">The architecture should not be sized by a peak flops fantasy. It should be sized by the measured cost curve.</figcaption>
+            </figure>
+            <p>
+              The target is not a tiny edge case. The target is a meaningful service margin, perhaps 2x to 5x cost-per-image advantage, with enough headroom to survive utilization variance, software overhead, and the inevitable engineering drift that comes with shipping. Any path that cannot show that margin under realistic conditions should be treated as research-only rather than commercial direction.
+            </p>
+          </section>
+
+          <section class="section" aria-labelledby="historical-lessons">
+            <p class="kicker">Historical lessons</p>
+            <h2 id="historical-lessons">NVIDIA is the case study, but not because peak flops are destiny</h2>
+            <p>
+              A useful historical lens is the NVIDIA stack itself. The T4 family, the A100 line, and then the H100 generation each showed a different version of the same truth: inference economics are shaped by the full stack. A chip that is powerful in isolation is not automatically valuable to a service provider unless the software stack, memory bandwidth, utilization, and precision choices all line up.
+            </p>
+            <p>
+              The T4 era demonstrated the value of specialized inference hardware when the problem was confined and the deployment was steady. The A100 era showed that a broader, more flexible compute platform could become the economic center of a service stack once the system software and model plumbing were mature. The H100 generation then showed that memory bandwidth, attention kernels, and inference software optimization matter more than bare theoretical arithmetic in a vacuum. This is the same lesson the DPU project must respect: Silicon alone is not the product; serving economics are the product.
+            </p>
+            <p>
+              The cautionary example is the inverse: a team that benchmarks a chip at peak theoretical performance and calls the result a market thesis. It is a classic mistake. The hardware market is not won by proving the device is “faster.” It is won by proving that a system can stay useful, utilized, and cheap over enough volume to matter. In other words, the winning trend is not raw flops; it is total service efficiency.
+            </p>
+            <div class="callout" style="font-style: normal;">
+              <p>
+                The lesson from NVIDIA is not that custom silicon always wins. It is that inference economics become real only once the hardware, software stack, and operational model are measured together.
+              </p>
+            </div>
+          </section>
+
+          <section class="section" aria-labelledby="closing">
+            <p class="kicker">Closing</p>
+            <h2 id="closing">The strongest path forward is measured, not aspirational</h2>
+            <p>
+              The best way to decide whether a DPU tile can beat a GPU at diffusion inference is to measure it in the same way a service operator would. That means a real GPU baseline, a real FPGA deployment on AWS EC2 F2, a disciplined model-and-quantization sweep, and a cost model built from data rather than wishful assumptions. Once that path is measured, the ASIC decision becomes a matter of evidence rather than theater.
+            </p>
+            <p>
+              If the experiment shows that a DPU system can deliver substantially more useful capacity at lower cost and with acceptable quality, then the ASIC plan becomes legitimate. If not, the project should stop before tape-out and redirect its effort to the actual bottleneck. That is the right way to turn hardware research into an economically grounded design practice.
+            </p>
+          </section>
+        </div>
+      </main>
+
+      <footer>
+        <p class="citation">
+          Explore: <a href="/">Home</a> · <a href="/turing.html">Hardware Synthesis</a> ·
+          <a href="/diffusion_economics.html">Diffusion Economics</a> ·
+          <a href="/pitch.pdf">Pitch Deck</a> ·
+          <a href="https://turingops.ai/world_model_paper.pdf">White Paper</a> ·
+          <a href="/about.html">About</a>
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
+
